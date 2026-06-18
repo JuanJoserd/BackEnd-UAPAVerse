@@ -9,7 +9,7 @@ datasource db {
 
 model Role {
   id       Int    @id @default(autoincrement())
-  name_rol String
+  name_rol String @unique
 
   users User[]
 }
@@ -22,23 +22,106 @@ model User {
 
   rol_id Int
   role   Role @relation(fields: [rol_id], references: [id])
+
+  company  Company?
+  projects Project[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model CompanySize {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  companies Company[]
+}
+
+model Sector {
+  id     Int    @id @default(autoincrement())
+  nombre String @unique
+
+  companies   Company[]
+  subsectores SubSector[]
+}
+
+model SubSector {
+  id     Int    @id @default(autoincrement())
+  nombre String
+
+  sector_id Int
+  sector    Sector @relation(fields: [sector_id], references: [id])
+
+  companies Company[]
+}
+
+model Company {
+  id               Int     @id @default(autoincrement())
+  nombre_comercial String
+  logo             String?
+  telefono         String
+  email_contacto   String
+
+  user_id Int  @unique
+  user    User @relation(fields: [user_id], references: [id])
+
+  sector_id Int
+  sector    Sector @relation(fields: [sector_id], references: [id])
+
+  subsector_id Int?
+  subsector    SubSector? @relation(fields: [subsector_id], references: [id])
+
+  company_size_id Int
+  companySize     CompanySize @relation(fields: [company_size_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model Category {
-  id                   Int    @id @default(autoincrement())
-  name_categoria       String
+  id                    Int    @id @default(autoincrement())
+  name_categoria        String @unique
   description_categoria String
 
   projects Project[]
 }
 
 model Project {
-  id                       Int      @id @default(autoincrement())
-  name_proyecto            String
-  descripcion_proyecto     String
-  fecha_registro_proyecto  DateTime @default(now())
-  estado_proyecto          String
+  id                      Int      @id @default(autoincrement())
+  name_proyecto           String
+  descripcion_proyecto    String
+  fecha_registro_proyecto DateTime @default(now())
+  estado_proyecto         String   @default("PENDIENTE")
+
+  carrera_asociada          String?
+  tecnologias_utilizadas    String?
+  nivel_madurez_tecnologica String?
+  estado_desarrollo         String?
+  informacion_tecnica       String?
+  informacion_comercial     String?
+  demo_url                  String?
 
   id_categoria Int
-  category Category @relation(fields: [id_categoria], references: [id])
+  category     Category @relation(fields: [id_categoria], references: [id])
+
+  id_usuario Int
+  user       User @relation(fields: [id_usuario], references: [id])
+
+  resources Resource[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Resource {
+  id            Int    @id @default(autoincrement())
+  name_recurso  String
+  type_recurso  String
+  route_recurso String
+
+  id_proyecto Int
+  project     Project @relation(fields: [id_proyecto], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
