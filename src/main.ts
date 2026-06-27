@@ -1,16 +1,27 @@
+/* eslint-disable prettier/prettier */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule);
 
-  app.enableCors({
-    origin: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  });
 
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
+    app.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true, 
+            forbidNonWhitelisted: true, 
+            transform: true, 
+        }),
+    );
+
+
+    app.enableCors();
+
+ 
+    app.setGlobalPrefix('api');
+
+    await app.listen(process.env.PORT ?? 3000);
 }
+
 bootstrap();
