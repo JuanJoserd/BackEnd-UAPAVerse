@@ -6,6 +6,10 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RolesModule } from './roles/roles.module';
+import { GetdatacompanyModule } from './getdatacompany/getdatacompany.module';
+import { SectorsModule } from './sectors/sectors.module';
+import { SubsectorsModule } from './subsectors/subsectors.module';
+import { CompaniesModule } from './companies/companies.module';
 
 @Module({
   imports: [
@@ -16,6 +20,10 @@ import { RolesModule } from './roles/roles.module';
     AuthModule,
     UsersModule,
      RolesModule,
+     GetdatacompanyModule,
+     SectorsModule,
+     SubsectorsModule,
+     CompaniesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
