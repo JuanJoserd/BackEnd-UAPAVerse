@@ -13,6 +13,7 @@ import { GetdatacompanyModule } from './getdatacompany/getdatacompany.module';
 import { SectorsModule } from './sectors/sectors.module';
 import { SubsectorsModule } from './subsectors/subsectors.module';
 import { CompaniesModule } from './companies/companies.module';
+import { ResourcesModule } from './resources/resources.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CompaniesModule } from './companies/companies.module';
      SectorsModule,
      SubsectorsModule,
      CompaniesModule,
+     ResourcesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

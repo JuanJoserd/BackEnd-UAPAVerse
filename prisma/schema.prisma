@@ -100,6 +100,11 @@ model Project {
   informacion_tecnica       String?
   informacion_comercial     String?
   demo_url                  String?
+  contacto_nombre   String?
+  contacto_telefono String?
+  contacto_correo   String?
+  nombre_grupo      String?
+  contacto_rol      String?
 
   id_categoria Int
   category     Category @relation(fields: [id_categoria], references: [id])

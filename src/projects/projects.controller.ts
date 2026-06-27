@@ -1,34 +1,46 @@
-﻿import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
-import { ProjectsService } from './projects.service';
+﻿import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { ProjectsService } from './projects.service';
 
-@Controller('uapaverse/project')
+@Controller('api/uapaverse/project')
 export class ProjectsController {
-    constructor(private readonly projectsService: ProjectsService) { }
+  constructor(private readonly projectsService: ProjectsService) {}
 
-    @Post('create')
-    async create(@Body() data: CreateProjectDto) {
-        return this.projectsService.create(data);
-    }
+  @Post('create')
+  create(@Body() createProjectDto: CreateProjectDto) {
+    return this.projectsService.create(createProjectDto);
+  }
 
-    @Get('list')
-    async findAll() {
-        return this.projectsService.findAll();
-    }
+  @Get('list')
+  findAll() {
+    return this.projectsService.findAll();
+  }
 
-    @Get(':id')
-    async findOne(@Param('id') id: string) {
-        return this.projectsService.findOne(Number(id));
-    }
+  @Get(':id')
+  findById(@Param('id', ParseIntPipe) id: number) {
+    return this.projectsService.findById(id);
+  }
 
-    @Put(':id')
-    async update(@Param('id') id: string, @Body() data: UpdateProjectDto) {
-        return this.projectsService.update(Number(id), data);
-    }
+  @Put(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateProjectDto: UpdateProjectDto,
+  ) {
+    return this.projectsService.update(id, updateProjectDto);
+  }
 
-    @Delete(':id')
-    async remove(@Param('id') id: string) {
-        return this.projectsService.remove(Number(id));
-    }
+  @Delete(':id')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.projectsService.remove(id);
+  }
 }
