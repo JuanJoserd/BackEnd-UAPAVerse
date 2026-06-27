@@ -8,19 +8,29 @@ import { CategoriesModule } from './categories/categories.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { RolesModule } from './roles/roles.module';
+import { GetdatacompanyModule } from './getdatacompany/getdatacompany.module';
+import { SectorsModule } from './sectors/sectors.module';
+import { SubsectorsModule } from './subsectors/subsectors.module';
+import { CompaniesModule } from './companies/companies.module';
 
 @Module({
-    imports: [
-        ConfigModule.forRoot({
-            isGlobal: true,
-        }),
-        PrismaModule,
-        AuthModule,
-        UsersModule,
-        ProjectsModule,
-        CategoriesModule,
-    ],
-    controllers: [AppController],
-    providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    PrismaModule,
+    AuthModule,
+    ProjectsModule,
+    CategoriesModule,
+    UsersModule,
+     RolesModule,
+     GetdatacompanyModule,
+     SectorsModule,
+     SubsectorsModule,
+     CompaniesModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
