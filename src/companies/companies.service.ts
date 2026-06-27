@@ -1,5 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 
 @Injectable()
@@ -39,6 +44,131 @@ export class CompaniesService {
       },
     },
   } as const;
+
+  async create(createCompanyDto: CreateCompanyDto) {
+    const nombreComercial =
+      createCompanyDto.entName ?? createCompanyDto.nombre_comercial;
+
+    const telefono =
+      createCompanyDto.telephoneNumber ?? createCompanyDto.telefono;
+
+    const emailContacto =
+      createCompanyDto.companyEmail ?? createCompanyDto.email_contacto;
+
+    const sectorId =
+      createCompanyDto.businessSectorId ?? createCompanyDto.sector_id;
+
+    const companySizeId =
+      createCompanyDto.businessSizeId ?? createCompanyDto.company_size_id;
+
+    const subSectorId =
+      createCompanyDto.subSectorId ?? createCompanyDto.subsector_id;
+
+    const userId = createCompanyDto.userId ?? createCompanyDto.user_id;
+
+    if (!nombreComercial) {
+      throw new BadRequestException('El nombre comercial es obligatorio.');
+    }
+
+    if (!telefono) {
+      throw new BadRequestException('El teléfono es obligatorio.');
+    }
+
+    if (!emailContacto) {
+      throw new BadRequestException('El correo de contacto es obligatorio.');
+    }
+
+    if (!sectorId) {
+      throw new BadRequestException('El sector es obligatorio.');
+    }
+
+    if (!companySizeId) {
+      throw new BadRequestException('El tamaño de la empresa es obligatorio.');
+    }
+
+    if (!userId) {
+      throw new BadRequestException('El ID del usuario es obligatorio.');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        role: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('El usuario indicado no existe.');
+    }
+
+    const existingCompany = await this.prisma.company.findUnique({
+      where: {
+        user_id: userId,
+      },
+    });
+
+    if (existingCompany) {
+      throw new BadRequestException(
+        'Este usuario ya tiene una empresa registrada.',
+      );
+    }
+
+    const sector = await this.prisma.sector.findUnique({
+      where: {
+        id: sectorId,
+      },
+    });
+
+    if (!sector) {
+      throw new NotFoundException('El sector indicado no existe.');
+    }
+
+    const companySize = await this.prisma.companySize.findUnique({
+      where: {
+        id: companySizeId,
+      },
+    });
+
+    if (!companySize) {
+      throw new NotFoundException(
+        'El tamaño de empresa indicado no existe.',
+      );
+    }
+
+    if (subSectorId !== undefined) {
+      const subsector = await this.prisma.subSector.findUnique({
+        where: {
+          id: subSectorId,
+        },
+      });
+
+      if (!subsector) {
+        throw new NotFoundException('El subsector indicado no existe.');
+      }
+
+      if (subsector.sector_id !== sectorId) {
+        throw new BadRequestException(
+          'El subsector no pertenece al sector indicado.',
+        );
+      }
+    }
+
+    return this.prisma.company.create({
+      data: {
+        nombre_comercial: nombreComercial,
+        logo: createCompanyDto.logo,
+        telefono,
+        email_contacto: emailContacto,
+        user_id: userId,
+        sector_id: sectorId,
+        company_size_id: companySizeId,
+        subsector_id: subSectorId,
+      },
+      include: this.companyInclude,
+    });
+  }
 
   async findAll() {
     return this.prisma.company.findMany({
@@ -129,14 +259,46 @@ export class CompaniesService {
     }
 
     if (sectorId !== undefined) {
+      const sector = await this.prisma.sector.findUnique({
+        where: {
+          id: sectorId,
+        },
+      });
+
+      if (!sector) {
+        throw new NotFoundException('El sector indicado no existe.');
+      }
+
       data.sector_id = sectorId;
     }
 
     if (companySizeId !== undefined) {
+      const companySize = await this.prisma.companySize.findUnique({
+        where: {
+          id: companySizeId,
+        },
+      });
+
+      if (!companySize) {
+        throw new NotFoundException(
+          'El tamaño de empresa indicado no existe.',
+        );
+      }
+
       data.company_size_id = companySizeId;
     }
 
     if (subSectorId !== undefined) {
+      const subsector = await this.prisma.subSector.findUnique({
+        where: {
+          id: subSectorId,
+        },
+      });
+
+      if (!subsector) {
+        throw new NotFoundException('El subsector indicado no existe.');
+      }
+
       data.subsector_id = subSectorId;
     }
 
