@@ -1,9 +1,9 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 
-@Controller('uapaverse')
+@Controller('api/uapaverse')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

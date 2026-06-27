@@ -1,14 +1,13 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
-import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +24,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new ConflictException('El correo ya está registrado.');
+      throw new BadRequestException('El correo ya está registrado.');
     }
 
     const role = await this.prisma.role.findUnique({
@@ -35,7 +34,7 @@ export class AuthService {
     });
 
     if (!role) {
-      throw new BadRequestException('El rol seleccionado no existe.');
+      throw new BadRequestException('El rol indicado no existe.');
     }
 
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
@@ -52,17 +51,21 @@ export class AuthService {
       },
     });
 
-    if (role.name_rol === 'EMPRESARIO') {
-      if (
-        !registerDto.entName ||
-        !registerDto.telephoneNumber ||
-        !registerDto.companyEmail ||
-        !registerDto.businessSectorId ||
-        !registerDto.businessSizeId
-      ) {
-        throw new BadRequestException(
-          'Faltan datos obligatorios de la empresa.',
-        );
+    if (registerDto.roleId === 3 && registerDto.entName) {
+      if (!registerDto.telephoneNumber) {
+        throw new BadRequestException('El teléfono de la empresa es obligatorio.');
+      }
+
+      if (!registerDto.companyEmail) {
+        throw new BadRequestException('El correo de la empresa es obligatorio.');
+      }
+
+      if (!registerDto.businessSectorId) {
+        throw new BadRequestException('El sector de la empresa es obligatorio.');
+      }
+
+      if (!registerDto.businessSizeId) {
+        throw new BadRequestException('El tamaño de la empresa es obligatorio.');
       }
 
       await this.prisma.company.create({
@@ -119,11 +122,11 @@ export class AuthService {
       role: user.role.name_rol,
     };
 
-    const token = await this.jwtService.signAsync(payload);
+    const accessToken = this.jwtService.sign(payload);
 
     return {
       message: 'Inicio de sesión correcto.',
-      access_token: token,
+      access_token: accessToken,
       user: {
         id: user.id,
         name: user.name_usuario,
